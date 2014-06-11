@@ -1,12 +1,14 @@
 //
-//  StatCounterAPI.m
-//  StatCounter
-//  Header file
+//  StatCounterAPI.h
+//  StatCounterApp
 //
 //  Provides an Objective-C interface to the StatCounter API
-//  Data is returned as a NSDictionary, and can be accessed by alphanumeric key same as the API JSON structure
+//  Data is returned as a NSDictionary, and can be accessed by key same as the API JSON structure
 //
 //  http://api.statcounter.com
+//
+//  Created by Zach Graham on 6/11/14.
+//  Copyright (c) 2014 StatCounter. All rights reserved.
 
 #import <Foundation/Foundation.h>
 
