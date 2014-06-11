@@ -1,10 +1,12 @@
 //
-//  StatCounterAPI.h
+//  StatCounterAPI.m
 //  StatCounter
+//  Header file
 //
-//  Created by Zach Graham on 6/10/14.
+//  Provides an Objective-C interface to the StatCounter API
+//  Data is returned as a NSDictionary, and can be accessed by alphanumeric key same as the API JSON structure
 //
-//
+//  http://api.statcounter.com
 
 #import <Foundation/Foundation.h>
 
@@ -20,7 +22,7 @@
 - (id) initWithUsername: (NSString*)username password: (NSString*)password;
 
 - (NSDictionary*) getUserProjectDetails;
-- (NSDictionary*) createStatCounterProject: (NSString*) websiteURL title: (NSString*) websiteTitle timeZone: (NSString*) timeZone;
+- (NSDictionary*) createProject: (NSString*) websiteURL title: (NSString*) websiteTitle timeZone: (NSString*) timeZone;
 - (NSDictionary*) getRecentKeywordActivity: (NSString*) projectID numOfResults: (NSInteger) numOfResults;
 - (NSDictionary*) getPopularPages: (NSString*) projectID numOfResults: (NSInteger) numOfResults countType: (NSString*) countType;
 - (NSDictionary*) getEntryPages: (NSString*) projectID numOfResults: (NSInteger) numOfResults;

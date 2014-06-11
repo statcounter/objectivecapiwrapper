@@ -1,15 +1,17 @@
 //
 //  StatCounterAPI.m
 //  StatCounter
+//  Implementation file
 //
-//  Created by Zach Graham on 6/10/14.
+//  Provides an Objective-C interface to the StatCounter API
+//  Data is returned as a NSDictionary, and can be accessed by alphanumeric key same as the API JSON structure
 //
-//
+//  http://api.statcounter.com
 
 #import "StatCounterAPI.h"
 #import <CommonCrypto/CommonDigest.h>
 
-// For private methods
+// Interface for private methods
 @interface StatCounterAPI()
 
 - (NSString*) buildURL: (NSString*) function;
@@ -49,7 +51,8 @@
     
 }
 
-- (NSDictionary*) createStatCounterProject: (NSString*) websiteURL title: (NSString*) websiteTitle timeZone: (NSString *) timeZone {
+// Creates a StatCouner project with website URL, title, and timezone
+- (NSDictionary*) createProject: (NSString*) websiteURL title: (NSString*) websiteTitle timeZone: (NSString *) timeZone {
         
     if ([NSTimeZone timeZoneWithName: timeZone] == nil) {
         
@@ -67,9 +70,10 @@
     
 }
 
+// Gets the recent keyword activity for the given project ID
 - (NSDictionary*) getRecentKeywordActivity: (NSString*)projectID numOfResults: (NSInteger)numOfResults {
     
-    _scQueryString = [NSString stringWithFormat:@"&s=keyword-activity&pi=%@&n=%d", projectID, numOfResults];
+    _scQueryString = [NSString stringWithFormat:@"&s=keyword-activity&pi=%@&n=%ld", projectID, (long)numOfResults];
     
     NSString* url = [self buildURL: @"stats"];
     
@@ -80,41 +84,47 @@
 // Count type of page_views or visitors
 - (NSDictionary*) getPopularPages: (NSString*)projectID numOfResults: (NSInteger)numOfResults countType: (NSString*)countType {
     
-    _scQueryString = [NSString stringWithFormat: @"&s=popular&pi=%@&n=%d&ct=%@", projectID, numOfResults, countType];
+    _scQueryString = [NSString stringWithFormat: @"&s=popular&pi=%@&n=%ld&ct=%@", projectID, (long)numOfResults, countType];
     
     NSString* url = [self buildURL: @"stats"];
     
     return [self fetchJSON: url];
 }
 
+// Gets the X number of entry page results for the given project ID
 - (NSDictionary*) getEntryPages: (NSString*)projectID numOfResults: (NSInteger)numOfResults {
     
-    _scQueryString = [NSString stringWithFormat: @"&s=entry&pi=%@&n=%d", projectID, numOfResults];
+    _scQueryString = [NSString stringWithFormat: @"&s=entry&pi=%@&n=%ld", projectID, (long)numOfResults];
     
     NSString* url = [self buildURL: @"stats"];
     
     return [self fetchJSON: url];
 }
 
+// Gets the X number of exit page results for the given project ID
 - (NSDictionary*) getExitPages: (NSString*)projectID numOfResults: (NSInteger)numOfResults {
     
-    _scQueryString = [NSString stringWithFormat: @"&s=exit&pi=%@&n=%d", projectID, numOfResults];
+    _scQueryString = [NSString stringWithFormat: @"&s=exit&pi=%@&n=%ld", projectID, (long)numOfResults];
     
     NSString* url = [self buildURL: @"stats"];
     
     return [self fetchJSON: url];
 }
 
+// Gets the came from visitor data for the given project ID
 - (NSDictionary*) getCameFrom: (NSString*)projectID numOfResults: (NSInteger)numOfResults external: (NSInteger)external {
     
-    _scQueryString = [NSString stringWithFormat: @"&s=camefrom&pi=%@&n=%d&external=%d", projectID, numOfResults, external];
+    _scQueryString = [NSString stringWithFormat: @"&s=camefrom&pi=%@&n=%ld&external=%ld", projectID, (long)numOfResults, (long)external];
     
     NSString* url = [self buildURL: @"stats"];
     
     return [self fetchJSON: url];
 }
 
+// Gets the browser usage ratio for the given project ID and device
 - (NSDictionary*) getBrowsers: (NSString*)projectID device: (NSString*)device {
+    
+    if (![self validDevice: device]) { [NSException raise:NSGenericException format:@"Invalid device entered"]; }
     
     _scQueryString = [NSString stringWithFormat: @"&s=browsers&de=%@&pi=%@", device, projectID];
     
@@ -123,7 +133,10 @@
     return [self fetchJSON: url];
 }
 
+// Gets the operating system usage for the given project ID and device
 - (NSDictionary*) getOperatingSystems: (NSString*)projectID device: (NSString*)device {
+    
+    if (![self validDevice: device]) { [NSException raise:NSGenericException format:@"Invalid device entered"]; }
     
     _scQueryString = [NSString stringWithFormat: @"&s=os&de=%@&pi=%@", device, projectID];
     
@@ -133,7 +146,10 @@
     
 }
 
+// Gets the recent pageload activity for the given project ID and device
 - (NSDictionary*) getRecentPageloadActivity: (NSString*)projectID device: (NSString*)device {
+    
+    if (![self validDevice: device]) { [NSException raise:NSGenericException format:@"Invalid device entered"]; }
     
     _scQueryString = [NSString stringWithFormat: @"&s=pageload&de=%@&pi=%@", device, projectID];
     
@@ -143,7 +159,10 @@
     
 }
 
+// Gets the exit link activity for the given project ID and device
 - (NSDictionary*) getExitLinkActivity: (NSString*)projectID device: (NSString*)device {
+    
+    if (![self validDevice: device]) { [NSException raise:NSGenericException format:@"Invalid device entered"]; }
     
     _scQueryString = [NSString stringWithFormat: @"&s=exit-link-activity&de=%@&pi=%@", device, projectID];
     
@@ -152,7 +171,10 @@
     return [self fetchJSON:url];
 }
 
+// Gets the download link activity for the given project ID and device
 - (NSDictionary*) getDownloadLinkActivity: (NSString*)projectID device: (NSString*)device {
+    
+    if (![self validDevice: device]) { [NSException raise:NSGenericException format:@"Invalid device entered"]; }
     
     _scQueryString = [NSString stringWithFormat: @"&s=download-link-activity&de=%@&pi=%@", device, projectID];
     
@@ -161,21 +183,26 @@
     return [self fetchJSON: url];
 }
 
+// Gets the recent visitors data for the latest X number of visitors, for the given project ID
 - (NSDictionary*) getRecentVisitors: (NSString*)projectID numOfResults: (NSInteger)numOfResults {
     
-    _scQueryString = [NSString stringWithFormat: @"&s=visitor&g=daily&pi=%@&n=%d", projectID, numOfResults];
+    _scQueryString = [NSString stringWithFormat: @"&s=visitor&g=daily&pi=%@&n=%ld", projectID, (long)numOfResults];
     
     NSString* url = [self buildURL: @"stats"];
     
     return [self fetchJSON: url];
 }
 
+// Gets the daily summary stats for the given project ID and date
 - (NSDictionary*) getSummaryStatsDate: (NSString*)projectID date: (NSString*)date {
     
-    return [self getSummaryStatsDateRange: projectID startDate: date endDate: date]; // Need to return only 1 result
+    NSDictionary* data = [self getSummaryStatsDateRange: projectID startDate: date endDate: date];
+    
+    return data;
     
 }
 
+// Gets the summary stats for a project ID for multiple days between start date and end date
 - (NSDictionary*) getSummaryStatsDateRange: (NSString*)projectID startDate: (NSString*)startDate endDate: (NSString*)endDate {
     
     if (![self validDate: startDate]) { [NSException raise:NSGenericException format:@"Invalid start date"]; }
@@ -184,16 +211,16 @@
     NSArray* startDateArray = [startDate componentsSeparatedByString:@"/"];
     NSArray* endDateArray = [startDate componentsSeparatedByString:@"/"];
     
-    NSInteger startMonthNum = (int)startDateArray[0];
-    NSInteger startDayNum = (int)startDateArray[1];
-    NSInteger startYearNum = (int)startDateArray[2];
+    NSInteger startMonthNum = [startDateArray[0] intValue];
+    NSInteger startDayNum = [startDateArray[1] intValue];
+    NSInteger startYearNum = [startDateArray[2] intValue];
     
-    NSInteger endMonthNum = (int)endDateArray[0];
-    NSInteger endDayNum = (int)endDateArray[1];
-    NSInteger endYearNum = (int)endDateArray[2];
+    NSInteger endMonthNum = [endDateArray[0] intValue];
+    NSInteger endDayNum = [endDateArray[1] intValue];
+    NSInteger endYearNum = [endDateArray[2] intValue];
     
-    _scQueryString = [NSString stringWithFormat: @"&s=summary&g=daily&sd=%d&sm=%d&sy=%d&ed=%d&em=%d&ey=%d&pi=%@",
-                      startDayNum, startMonthNum, startYearNum, endDayNum, endMonthNum, endYearNum, projectID];
+    _scQueryString = [NSString stringWithFormat: @"&s=summary&g=daily&sd=%ld&sm=%ld&sy=%ld&ed=%ld&em=%ld&ey=%ld&pi=%@",
+                      (long)startDayNum, (long)startMonthNum, (long)startYearNum, (long)endDayNum, (long)endMonthNum, (long)endYearNum, projectID];
     
     NSString* url = [self buildURL: @"stats"];
     
@@ -211,7 +238,7 @@
     long timestamp = (long)[[NSDate date] timeIntervalSince1970];
     
     // Generate the query string with timestamp and version number etc
-    _scQueryString = [NSString stringWithFormat:@"?vn=%d&t=%ld&u=%@%@&f=json", _scVersionNum, timestamp, _scUsername, _scQueryString];
+    _scQueryString = [NSString stringWithFormat:@"?vn=%ld&t=%ld&u=%@%@&f=json", (long)_scVersionNum, timestamp, _scUsername, _scQueryString];
     
     // Generate the SHA1
     NSString* queryPass = [NSString stringWithFormat: @"%@%@", _scQueryString, _scPassword];
@@ -238,7 +265,7 @@
                                                            error:&error];
     
     NSDictionary* status = [json objectForKey:@"@attributes"];
-    
+        
     if (error == nil && [status[@"status"] isEqualToString: @"ok"]) {
         
         NSDictionary* data = [json objectForKey:@"sc_data"]; //2
@@ -263,15 +290,14 @@
 - (Boolean) validDate: (NSString*) date {
     
     NSArray *dateArray = [date componentsSeparatedByString:@"/"];
-    
     if ([dateArray count] != 3) { return false; }
     
-    NSInteger month = (int)[dateArray objectAtIndex: 0];
-    NSInteger day = (int)[dateArray objectAtIndex: 1];
-    NSInteger year = (int)[dateArray objectAtIndex: 2];
+    NSInteger month = [[dateArray objectAtIndex: 0] intValue];
+    NSInteger day = [[dateArray objectAtIndex: 1] intValue];
+    NSInteger year = [[dateArray objectAtIndex: 2] intValue];
     
     if (month <= 0 || month > 12) { return false; }
-    
+
     // number of days in month
     NSCalendar* cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateComponents* comps = [[NSDateComponents alloc] init];
@@ -282,9 +308,8 @@
     NSInteger daysInMonth = [cal rangeOfUnit:NSDayCalendarUnit
                                       inUnit:NSMonthCalendarUnit
                                      forDate:[cal dateFromComponents:comps]].length;
-    
     if (day < 1 || day > daysInMonth) { return false; }
-    
+
     if (year > currentYear) { return false; }
     
     return true;
