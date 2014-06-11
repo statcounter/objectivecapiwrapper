@@ -1,4 +1,4 @@
-objectivecapiwrapper
+StatCounter Objective-C API Wrapper
 ====================
 
 Objective C Wrapper for StatCounter API
@@ -9,9 +9,9 @@ Objective C Wrapper for StatCounter API
 
 This wrapper provides an Objective-C interface to the StatCounter API.  It provides several methods that make it easier to perform various operations on your StatCounter account such as create a new StatCounter project, retrieve project details, and fetch stats details for projects.  
 
-Data is returned as a NSDictionary, and values can be accessed using the same keys specified in the [StatCounter API documentation](http://api.statcounter.com)
+Data is returned as a NSDictionary, and values can be accessed using the same keys specified in the [StatCounter API documentation](http://api.statcounter.com).
 
-To start using, include StatCounterAPI.h and StatCounterAPI.m in your Objective-C Project, like so:
+To start using, include StatCounterAPI.h and StatCounterAPI.m in your Objective-C Project, and import like so:
 ```objective-c
 #import "StatCounterAPI.h"
 ```
