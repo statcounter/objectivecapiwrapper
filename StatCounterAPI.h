@@ -38,5 +38,6 @@
 - (NSDictionary*) getSummaryStatsDate: (NSString*) projectID date: (NSString*) date;
 - (NSDictionary*) getSummaryStatsDateRange: (NSString*) projectID startDate: (NSString*) startDate endDate: (NSString*) endDate;
 - (NSDictionary*) getRecentVisitors: (NSString*) projectID numOfResults: (NSInteger) numOfResults;
+- (Boolean) loginIsValid: (NSString*) userID password: (NSString*) userPass;
 
 @end

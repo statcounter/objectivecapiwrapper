@@ -21,8 +21,8 @@
 - (Boolean) validDate: (NSString*) date;
 - (Boolean) validTimezone: (NSString*) timezone;
 - (NSDictionary*) fetchJSON: (NSString*) url;
-- (NSString*) URLEncode:(NSString*)string;
-- (NSString*) sha1:(NSString*)str;
+- (NSString*)URLEncode:(NSString*)string;
+- (NSString*)sha1:(NSString*)str;
 
 @end
 
@@ -230,6 +230,31 @@
     NSString* url = [self buildURL: @"stats"];
     
     return [self fetchJSON: url];
+}
+
+// Checks if the given login is valid
+- (Boolean) loginIsValid:(NSString *)userID password:(NSString *)userPass {
+    
+    NSString* url = [self buildURL: @"user_projects"];
+    
+    NSData* responseData = nil;
+    
+    responseData = [NSData dataWithContentsOfURL: [NSURL URLWithString: url]];
+    
+    NSError* error = nil;
+    
+    NSDictionary* json = [NSJSONSerialization JSONObjectWithData:responseData
+                                                         options:kNilOptions
+                                                           error:&error];
+    
+    NSDictionary* status = [json objectForKey:@"@attributes"];
+    
+    if ([status[@"status"] isEqualToString: @"ok"]) {
+        
+        return true;
+    }
+    
+    return false;
 }
 
 
