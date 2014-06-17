@@ -214,7 +214,7 @@
     if (![self validDate: endDate]) { [NSException raise:NSGenericException format:@"Invalid end date"]; }
     
     NSArray* startDateArray = [startDate componentsSeparatedByString:@"/"];
-    NSArray* endDateArray = [startDate componentsSeparatedByString:@"/"];
+    NSArray* endDateArray = [endDate componentsSeparatedByString:@"/"];
     
     NSInteger startMonthNum = [startDateArray[0] intValue];
     NSInteger startDayNum = [startDateArray[1] intValue];
