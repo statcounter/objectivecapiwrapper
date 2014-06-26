@@ -46,8 +46,17 @@
     return self;
 }
 
+// Gets the user's details
+// If successful returns a dictionary with the user's details
+- (NSDictionary*) getUserDetails {
+    
+    NSString* url = [self buildURL: @"user_details"];
+    
+    return [self fetchJSON: url];
+}
+
 // Gets the user's project details
-// If successful, returns a dictionary with project details, else returns nil
+// If successful, returns a dictionary with project details
 - (NSDictionary*) getUserProjectDetails {
     
     NSString* url = [self buildURL: @"user_projects"];

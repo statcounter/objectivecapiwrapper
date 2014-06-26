@@ -23,6 +23,7 @@
 
 - (id) initWithUsername: (NSString*)username password: (NSString*)password;
 
+- (NSDictionary*) getUserDetails;
 - (NSDictionary*) getUserProjectDetails;
 - (NSDictionary*) createProject: (NSString*) websiteURL title: (NSString*) websiteTitle timeZone: (NSString*) timeZone;
 - (NSDictionary*) getRecentKeywordActivity: (NSString*) projectID numOfResults: (NSInteger) numOfResults;
