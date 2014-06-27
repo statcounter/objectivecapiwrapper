@@ -241,6 +241,41 @@
     return [self fetchJSON: url];
 }
 
+// Gets the summary stats for multiple project IDs for multiple days between start date and end date
+- (NSDictionary*) getMultipleSummaryStatsDateRange:(NSMutableArray *)projectIDArray startDate:(NSString *)startDate endDate:(NSString *)endDate {
+    
+    if (![self validDate: startDate]) { [NSException raise:NSGenericException format:@"Invalid start date"]; }
+    if (![self validDate: endDate]) { [NSException raise:NSGenericException format:@"Invalid end date"]; }
+    
+    NSArray* startDateArray = [startDate componentsSeparatedByString:@"/"];
+    NSArray* endDateArray = [endDate componentsSeparatedByString:@"/"];
+    
+    NSInteger startMonthNum = [startDateArray[0] intValue];
+    NSInteger startDayNum = [startDateArray[1] intValue];
+    NSInteger startYearNum = [startDateArray[2] intValue];
+    
+    NSInteger endMonthNum = [endDateArray[0] intValue];
+    NSInteger endDayNum = [endDateArray[1] intValue];
+    NSInteger endYearNum = [endDateArray[2] intValue];
+    
+    NSMutableString* multipleProjects = [[NSMutableString alloc] init];
+    
+    for (NSString* project in projectIDArray) {
+        
+        [multipleProjects appendString:[NSString stringWithFormat:@"&pi=%@", project]];
+    }
+    
+    
+    
+    _scQueryString = [NSString stringWithFormat: @"&s=summary&g=daily&sd=%ld&sm=%ld&sy=%ld&ed=%ld&em=%ld&ey=%ld%@",
+                      (long)startDayNum, (long)startMonthNum, (long)startYearNum, (long)endDayNum, (long)endMonthNum, (long)endYearNum, multipleProjects];
+    
+    
+    NSString* url = [self buildURL: @"stats"];
+    
+    return [self fetchJSONMultiple:url];
+}
+
 // Checks if the given login is valid
 - (Boolean) loginIsValid:(NSString *)userID password:(NSString *)userPass {
     
@@ -312,6 +347,48 @@
     }
     
     [NSException raise:NSGenericException format:@"Could not fetch SC data"];
+    
+    return nil;
+}
+
+// Returns an NSDictionary form of the JSON fetched from the API
+- (NSDictionary*) fetchJSONMultiple: (NSString*) url {
+    
+    NSData* responseData = nil;
+    
+    responseData = [NSData dataWithContentsOfURL: [NSURL URLWithString: url]];
+    
+    NSError* error = nil;
+    
+    if (responseData != nil) {
+        
+        NSDictionary* json = [NSJSONSerialization JSONObjectWithData:responseData
+                                                             options:kNilOptions
+                                                               error:&error];
+        
+        NSDictionary* status = [json objectForKey:@"@attributes"];
+        
+        if (error == nil && [status[@"status"] isEqualToString: @"ok"]) {
+            
+            //NSLog(@"json: %@", json);
+            
+            NSDictionary* data = [json objectForKey:@"project"]; //2
+            
+            NSLog(@"data: %@", data);
+            return data;
+        }
+    }
+    
+    
+    /*
+     if (responseData == nil) {
+     
+     NSLog(@"calling fetchJSON again");
+     return [self fetchJSON: url];
+     }
+     */
+    
+    // [NSException raise:NSGenericException format:@"Could not fetch SC data"];
     
     return nil;
 }
